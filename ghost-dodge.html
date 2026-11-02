@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Ghost Dodge</title>
+  <style>
+    body {
+      background-color: #0d0d1a;
+      color: #9d4edd;
+      text-align: center;
+      font-family: Arial;
+      margin: 0;
+      padding: 20px;
+    }
+
+    h1 {
+      color: #c77dff;
+      font-size: 36px;
+      text-shadow: 2px 2px 8px #9d4edd;
+    }
+
+    p {
+      color: #e0aaff;
+    }
+
+    #game-container {
+      margin: 20px auto;
+      box-shadow: 0 0 30px rgba(157, 78, 221, 0.4);
+    }
+  </style>
+</head>
+<body>
+  <h1>👻 Ghost Dodge Game 👻</h1>
+  <p>Use Arrow Keys to Dodge the Ghosts!</p>
+
+  <div id="game-container"></div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.7.0/p5.min.js"></script>
+
+  <script>
+    let playerX = 300;
+    let playerY = 200;
+    let playerSize = 40;
+
+    let ghosts = [];
+    let score = 0;
+    let gameOver = false;
+
+    function setup() {
+      let canvas = createCanvas(600, 400);
+      canvas.parent('game-container');
+
+      for (let i = 0; i < 5; i++) {
+        ghosts.push({
+          x: random(width),
+          y: random(height),
+          speedX: random(-2, 2),
+          speedY: random(-2, 2)
+        });
+      }
+    }
+
+    function draw() {
+      background(13, 13, 26);
+
+      if (!gameOver) {
+        fill(255, 140, 0);
+        circle(playerX, playerY, playerSize);
+        fill(0);
+        circle(playerX - 8, playerY - 5, 8);
+        circle(playerX + 8, playerY - 5, 8);
+        arc(playerX, playerY + 5, 20, 10, 0, PI);
+
+        if (keyIsDown(LEFT_ARROW)) {
+          playerX -= 5;
+        }
+        if (keyIsDown(RIGHT_ARROW)) {
+          playerX += 5;
+        }
+        if (keyIsDown(UP_ARROW)) {
+          playerY -= 5;
+        }
+        if (keyIsDown(DOWN_ARROW)) {
+          playerY += 5;
+        }
+
+        playerX = constrain(playerX, playerSize/2, width - playerSize/2);
+        playerY = constrain(playerY, playerSize/2, height - playerSize/2);
+
+        for (let ghost of ghosts) {
+          fill(200, 200, 255, 200);
+          ellipse(ghost.x, ghost.y, 35, 40);
+          ellipse(ghost.x - 10, ghost.y + 15, 12, 15);
+          ellipse(ghost.x, ghost.y + 15, 12, 15);
+          ellipse(ghost.x + 10, ghost.y + 15, 12, 15);
+
+          fill(0);
+          circle(ghost.x - 7, ghost.y - 5, 8);
+          circle(ghost.x + 7, ghost.y - 5, 8);
+
+          ghost.x += ghost.speedX;
+          ghost.y += ghost.speedY;
+
+          if (ghost.x < 0 || ghost.x > width) {
+            ghost.speedX *= -1;
+          }
+          if (ghost.y < 0 || ghost.y > height) {
+            ghost.speedY *= -1;
+          }
+
+          let distance = dist(playerX, playerY, ghost.x, ghost.y);
+          if (distance < 35) {
+            gameOver = true;
+          }
+        }
+
+        score++;
+
+        fill(157, 78, 221);
+        textSize(28);
+        textAlign(LEFT);
+        text("Time: " + floor(score / 60), 20, 35);
+
+      } else {
+        fill(197, 125, 255);
+        textSize(48);
+        textAlign(CENTER);
+        text("GAME OVER!", width/2, height/2 - 20);
+        textSize(24);
+        text("Score: " + floor(score / 60) + " seconds", width/2, height/2 + 20);
+        textSize(18);
+        text("Press SPACE to Restart", width/2, height/2 + 60);
+      }
+    }
+
+    function keyPressed() {
+      if (gameOver && key === ' ') {
+        gameOver = false;
+        score = 0;
+        playerX = 300;
+        playerY = 200;
+        ghosts = [];
+        for (let i = 0; i < 5; i++) {
+          ghosts.push({
+            x: random(width),
+            y: random(height),
+            speedX: random(-2, 2),
+            speedY: random(-2, 2)
+          });
+        }
+      }
+    }
+  </script>
+</body>
+</html>
